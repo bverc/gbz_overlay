@@ -31,6 +31,7 @@ BatteryADC = False
 # MCP3008
 # ADS1015
 # PJ (PiJuice or PiJuice Zero)
+# PiSugar (PiSugar3)
 ADCType = PJ
 
 # Gain for ADC Voltage. Adjust if dividing voltage before ADC input
