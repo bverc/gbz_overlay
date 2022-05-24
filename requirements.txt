@@ -1,0 +1,7 @@
+# General Requirements
+psutil
+
+# Battery ADC Specific Requirements
+Adafruit-ADS1x15
+Adafruit-MCP3008
+pijuice-base
