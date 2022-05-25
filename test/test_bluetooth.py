@@ -1,4 +1,4 @@
-"""Unit tests for bluetooth.py
+"""Unit tests for devices/bluetooth.py
 github.com/bverc/retropie-status-overlay
 
 Author: bverc
@@ -10,7 +10,7 @@ import os
 from devices import bluetooth
 
 class TestBluetooth(unittest.TestCase):
-    """A Class used to test Bluetooth module."""
+    """A Class used to test devices.bluetooth module."""
 
     def test_add_icons(self):
         """Setup empty dictionary and dummy icon_path and size, call function,
@@ -25,14 +25,14 @@ class TestBluetooth(unittest.TestCase):
         self.assertTrue(icons['bt_disabled'] == "random_dir/ic_bluetooth_disabled_black_48dp.png")
 
     def test_get_state_connected(self):
-        """Test bluetooth.get_state() with a directly with atleast one file"""
+        """Test bluetooth.get_state() with a directory with at least one file"""
         cwd = os.getcwd()
         bluetooth.BT_DEVICES_DIR = cwd + "/test/dir2"
         bt_state = bluetooth.get_state()
         self.assertTrue(bt_state == "bt_connected")
-        
+
     def test_get_state_disconnected(self):
-        """Test bluetooth.get_state() with an empty directly"""
+        """Test bluetooth.get_state() with an empty directory"""
         # This will cause subprocess to call hciconfig, which could return anything
         cwd = os.getcwd()
         bluetooth.BT_DEVICES_DIR = cwd + "/test/dir0"
