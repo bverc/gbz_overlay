@@ -155,19 +155,19 @@ def main(): # pylint: disable=too-many-locals, too-many-branches, too-many-state
     """ Main Function."""
     states = {"wifi": None, "bt": None, "bat": None, "audio": None, "ingame": None}
     shutdown_pending = False
-    
+
     GPIO.setmode(GPIO.BCM)
     if config.getboolean('Detection', 'BatteryLDO'):
-        LDO_GPIO = config['BatteryLDO']['GPIO']
-        my_logger.info("LDO Active on GPIO %s", LDO_GPIO)
-        GPIO.setup(int(LDO_GPIO), GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(int(LDO_GPIO), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=500)
+        ldo_gpio = config['BatteryLDO']['GPIO']
+        my_logger.info("LDO Active on GPIO %s", ldo_gpio)
+        GPIO.setup(int(ldo_gpio), GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(int(ldo_gpio), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=500)
 
     if config.getboolean('Detection', 'ShutdownGPIO'):
-        SD_GPIO = config['ShutdownGPIO']['GPIO']
-        my_logger.info("Shutdown button on GPIO %s", SD_GPIO)
-        GPIO.setup(int(SD_GPIO), GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(int(SD_GPIO), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=200)
+        sd_gpio = config['ShutdownGPIO']['GPIO']
+        my_logger.info("Shutdown button on GPIO %s", sd_gpio)
+        GPIO.setup(int(sd_gpio), GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(int(sd_gpio), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=200)
 
     # Main Loop
     while True:
