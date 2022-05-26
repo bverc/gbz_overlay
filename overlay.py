@@ -24,7 +24,6 @@ try:
 except RuntimeError:
     print("This module can only be run on a Raspberry Pi!")
     print("Proceeding, as likely a unit test.")
-    pass
 
 from devices import wifi, audio, bluetooth, battery
 
@@ -43,9 +42,12 @@ my_logger.addHandler(console)
 
 # Get Framebuffer resolution
 FB_FILE = "tvservice -s"
-FB_OUTPUT = subprocess.check_output(FB_FILE.split()).decode().rstrip()
-resolution = re.search(r"(\d{3,}x\d{3,})", FB_OUTPUT).group().split('x')
-my_logger.info(resolution)
+try:
+    FB_OUTPUT = subprocess.check_output(FB_FILE.split()).decode().rstrip()
+    resolution = re.search(r"(\d{3,}x\d{3,})", FB_OUTPUT).group().split('x')
+    my_logger.info(resolution)
+except FileNotFoundError:
+    pass
 
 # Setup icons
 ICON_PATH = os.path.dirname(os.path.realpath(__file__)) + "/colored_icons/"
