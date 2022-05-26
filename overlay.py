@@ -146,19 +146,6 @@ def abort_shutdown():
     kill_overlay_process("caution")
     my_logger.info("Power Restored, shutdown aborted.")
 
-GPIO.setmode(GPIO.BCM)
-if config.getboolean('Detection', 'BatteryLDO'):
-    LDO_GPIO = config['BatteryLDO']['GPIO']
-    my_logger.info("LDO Active on GPIO %s", LDO_GPIO)
-    GPIO.setup(int(LDO_GPIO), GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(int(LDO_GPIO), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=500)
-
-if config.getboolean('Detection', 'ShutdownGPIO'):
-    SD_GPIO = config['ShutdownGPIO']['GPIO']
-    my_logger.info("Shutdown button on GPIO %s", SD_GPIO)
-    GPIO.setup(int(SD_GPIO), GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(int(SD_GPIO), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=200)
-
 overlay_processes = {}
 
 if config.getboolean('Detection', 'BatteryADC'):
@@ -168,6 +155,19 @@ def main(): # pylint: disable=too-many-locals, too-many-branches, too-many-state
     """ Main Function."""
     states = {"wifi": None, "bt": None, "bat": None, "audio": None, "ingame": None}
     shutdown_pending = False
+    
+    GPIO.setmode(GPIO.BCM)
+    if config.getboolean('Detection', 'BatteryLDO'):
+        LDO_GPIO = config['BatteryLDO']['GPIO']
+        my_logger.info("LDO Active on GPIO %s", LDO_GPIO)
+        GPIO.setup(int(LDO_GPIO), GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(int(LDO_GPIO), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=500)
+
+    if config.getboolean('Detection', 'ShutdownGPIO'):
+        SD_GPIO = config['ShutdownGPIO']['GPIO']
+        my_logger.info("Shutdown button on GPIO %s", SD_GPIO)
+        GPIO.setup(int(SD_GPIO), GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(int(SD_GPIO), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=200)
 
     # Main Loop
     while True:
