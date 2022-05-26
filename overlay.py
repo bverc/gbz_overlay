@@ -45,9 +45,9 @@ FB_FILE = "tvservice -s"
 try:
     FB_OUTPUT = subprocess.check_output(FB_FILE.split()).decode().rstrip()
     resolution = re.search(r"(\d{3,}x\d{3,})", FB_OUTPUT).group().split('x')
-    my_logger.info(resolution)
 except FileNotFoundError:
-    pass
+    resolution = ['1920', '1080'] # Default to 1080p if unable to check
+my_logger.info(resolution)
 
 # Setup icons
 ICON_PATH = os.path.dirname(os.path.realpath(__file__)) + "/colored_icons/"
