@@ -1,5 +1,6 @@
 # General Requirements
 psutil
+RPi.GPIO
 
 # Battery ADC Specific Requirements
 Adafruit-ADS1x15
