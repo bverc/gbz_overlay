@@ -22,8 +22,6 @@ def mock_read_adc(channel, gain): # pylint: disable=unused-argument
 class TestADS1015(unittest.TestCase):
     """A Class used to test ADC1015 module."""
 
-
-
     def test_read(self):
         """Test ads1015.read()"""
         ads1015.adc.read_adc.side_effect = mock_read_adc
