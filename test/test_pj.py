@@ -9,7 +9,7 @@ from unittest.mock import Mock
 
 from adc import pj
 
-pj.pijuice.status = Mock()
+pj.pijuice = Mock()
 
 def mock_get_voltage():
     """A method to mock PiJuice.status.GetBatteryVoltage()"""
