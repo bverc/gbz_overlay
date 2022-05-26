@@ -37,7 +37,7 @@ class TestBluetooth(unittest.TestCase):
         cwd = os.getcwd()
         bluetooth.BT_DEVICES_DIR = cwd + "/test/dir0"
         bt_state = bluetooth.get_state()
-        self.assertTrue(bt_state in ("bt_enabled", "bt_enabled"))
+        self.assertTrue(bt_state in ("bt_enabled", "bt_disabled"))
 
 if __name__ == '__main__':
     unittest.main()
