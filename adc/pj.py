@@ -15,7 +15,10 @@ or apt-get install pijuice-base
 # Import pijuice module
 from pijuice import PiJuice
 
-pijuice = PiJuice(1, 0x14) # Instantiate PiJuice interface object
+try:
+    pijuice = PiJuice(1, 0x14) # Instantiate PiJuice interface object
+except FileNotFoundError:
+    pass
 
 def read(channel): # pylint: disable=unused-argument
     """Read from ADC and return voltage."""
