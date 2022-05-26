@@ -5,5 +5,6 @@ RPi.GPIO
 # Battery ADC Specific Requirements
 Adafruit-ADS1x15
 Adafruit-MCP3008
+Adafruit_BBIO
 smbus
 #pijuice-base # not available via pip
