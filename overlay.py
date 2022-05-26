@@ -19,7 +19,12 @@ import configparser
 from datetime import datetime
 
 import psutil
-from RPi import GPIO
+try:
+    from RPi import GPIO
+except RuntimeError:
+    print("This module can only be run on a Raspberry Pi!")
+    print("Proceeding, as likely a unit test.")
+    pass
 
 from devices import wifi, audio, bluetooth, battery
 
