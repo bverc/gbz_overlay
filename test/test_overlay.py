@@ -16,6 +16,7 @@ class TestOverlay(unittest.TestCase):
 
     def test_pngview(self):
         """Test pngview adds to overlay_processes by checking key was added."""
+        overlay.PNGVIEW_PATH = "echo"
         overlay.pngview("test1", 0, 0, overlay.icons["under-voltage"])
         self.assertTrue("test1" in overlay.overlay_processes)
         overlay.overlay_processes["test1"].kill()
