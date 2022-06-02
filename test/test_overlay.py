@@ -17,10 +17,15 @@ class TestOverlay(unittest.TestCase):
     def test_pngview(self):
         """Test pngview adds to overlay_processes by checking key was added."""
         overlay.PNGVIEW_PATH = "echo"
+        self.assertFalse("test1" in overlay.overlay_processes)
         overlay.pngview("test1", 0, 0, overlay.icons["under-voltage"])
         self.assertTrue("test1" in overlay.overlay_processes)
         overlay.overlay_processes["test1"].kill()
+
         self.assertFalse("test2" in overlay.overlay_processes)
+        overlay.pngview("test2", 0, 0, overlay.icons["under-voltage"],0)
+        self.assertTrue("test2" in overlay.overlay_processes)
+        overlay.overlay_processes["test2"].kill()
 
     def test_kill_overlay_process(self):
         """Test kill_overlay_process() by checking key is removed from overlay_processes."""
@@ -126,8 +131,6 @@ class TestOverlay(unittest.TestCase):
         self.assertFalse(overlay.check_process("abcdefg"))
         # process systemd should be running
         self.assertTrue(overlay.check_process("systemd"))
-        # process python should be running
-        self.assertTrue(overlay.check_process("python"))
 
     def test_abort_shutdown(self):
         """Abort a pending shutdown, then check system still responds 60 seconds later."""
