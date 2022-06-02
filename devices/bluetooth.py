@@ -8,6 +8,7 @@ import subprocess
 import os
 
 BT_DEVICES_DIR = "/sys/class/bluetooth"
+BT_CMD = "hciconfig"
 
 def add_icons(icons, iconpath, size):
     """Add Bluetooth specific icons."""
@@ -19,7 +20,7 @@ def get_state():
     """Get state of Bluetooth device."""
     bt_state = "bt_disabled"
     try:
-        with subprocess.Popen('hciconfig', stdout=subprocess.PIPE) as proc1:
+        with subprocess.Popen(BT_CMD, stdout=subprocess.PIPE) as proc1:
             cmd = ['awk', 'FNR == 3 {print tolower($1)}']
             with subprocess.Popen(cmd, stdin=proc1.stdout, stdout=subprocess.PIPE) as proc2:
                 state = proc2.communicate()[0].decode().rstrip()

@@ -5,8 +5,14 @@ Author: bverc
 """
 
 import unittest
+import configparser
+from unittest.mock import Mock
 
 from devices import battery
+
+def mock_read(channel): # pylint: disable=unused-argument
+    """A function to mock adc.read()"""
+    return 4.5
 
 class TestBattery(unittest.TestCase):
     """A Class used to test battery module."""
@@ -19,6 +25,26 @@ class TestBattery(unittest.TestCase):
         battery.add_icons(icons, icon_path)
         self.assertTrue(len(icons.keys()) == 1)
         self.assertTrue(icons['battery_critical_shutdown'] == "random_dir/battery-alert_120.png")
+
+    def test_battery(self):
+        """Create Battery object."""
+        config = configparser.ConfigParser()
+        config['Detection'] = {'ADCType': 'ads1015',
+                               'VMaxCharging': '4.5',
+                               'VMinCharging': '4.25',
+                               'VMaxDischarging': '4',
+                               'VMinDischarging': '3.2',
+                               'ADCChannel': '0',
+                               'ADCGain': '1'}
+        bat = battery.Battery(config)
+        self.assertTrue(bat.adc_gain == 1)
+
+        bat.adc = Mock()
+        bat.adc.read.side_effect = mock_read
+
+        (bat_state, median_v) = bat.get_state()
+        self.assertTrue(bat_state == "charging_full")
+        self.assertTrue(median_v == 4.5)
 
 if __name__ == '__main__':
     unittest.main()

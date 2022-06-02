@@ -33,11 +33,16 @@ class TestBluetooth(unittest.TestCase):
 
     def test_get_state_disconnected(self):
         """Test bluetooth.get_state() with an empty directory"""
-        # This will cause subprocess to call hciconfig, which could return anything
         cwd = os.getcwd()
         bluetooth.BT_DEVICES_DIR = cwd + "/test/dir0"
+
+        bluetooth.BT_CMD = ["echo", "-e", "\n\nUP"]
         bt_state = bluetooth.get_state()
-        self.assertTrue(bt_state in ("bt_enabled", "bt_disabled"))
+        self.assertTrue(bt_state == "bt_enabled")
+
+        bluetooth.BT_CMD = ["echo", "-e", "\n\nDOWN"]
+        bt_state = bluetooth.get_state()
+        self.assertTrue(bt_state == "bt_disabled")
 
 if __name__ == '__main__':
     unittest.main()
