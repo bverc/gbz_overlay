@@ -36,4 +36,4 @@ def get_state():
     except OSError:
         pass
 
-    return bt_state
+    return bt_state, ""
