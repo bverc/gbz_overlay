@@ -77,7 +77,7 @@ icons = {
 wifi.add_icons(icons, ICON_PATH, ICON_SIZE)
 bluetooth.add_icons(icons, ICON_PATH, ICON_SIZE)
 audio.add_icons(icons, ICON_PATH, ICON_SIZE)
-battery.add_icons(icons, ICON_PATH)
+battery.add_icons(icons, ICON_PATH, ICON_SIZE)
 
 ENV_CMD = "vcgencmd get_throttled"
 
@@ -169,48 +169,26 @@ def setup_interrupts():
 
 overlay_processes = {}
 
-if config.getboolean('Detection', 'BatteryADC'):
-    bat = battery.Battery(config)
-
 def main():
     """ Main Function."""
-    states = {"Wifi": None, "Bluetooth": None, "Audio": None, "Battery": None, "ingame": None}
+    states = {"Wifi": None, "Bluetooth": None, "Audio": None, "BatteryADC": None, "ingame": None}
+    devices = {"Wifi": wifi, "Bluetooth": bluetooth, "Audio": audio}
+    if config.getboolean('Detection', 'BatteryADC'):
+        bat = battery.Battery(config)
+        devices['BatteryADC'] = bat
     shutdown_pending = False
     setup_interrupts()
 
     # Main Loop
     while True:
         count = 0
+        log = str(datetime.now())
 
         # Check if retroarch is running then set alpha
         new_ingame = check_process('retroarch')
         alpha = get_alpha(new_ingame)
 
-        log = str(datetime.now())
-
-        # Battery Icon
-        if config.getboolean('Detection', 'BatteryADC'):
-            count += 1
-            (new_battery_state, value_v) = bat.get_state()
-
-            if new_battery_state != states["bat"] or new_ingame != states["ingame"]:
-                bat_icon_path = (ICON_PATH + "ic_battery_" + new_battery_state +
-                                "_black_" + ICON_SIZE + "dp.png")
-                if new_battery_state == "alert_red":
-                    bat_icon_path = ICON_PATH + "battery-alert_" + ICON_SIZE + ".png"
-                pngview("bat", get_x_pos(count), Y_POS, bat_icon_path, alpha)
-                states["bat"] = new_battery_state
-
-                if config.getboolean('Detection', 'ADCShutdown'):
-                    if shutdown_pending and value_v > config.getfloat("Detection", "VMinCharging"):
-                        abort_shutdown()
-                        shutdown_pending = False
-                    elif value_v < config.getfloat("Detection", "VMinDischarging"):
-                        shutdown()
-                        shutdown_pending = True
-
-        # Remaining Device Icons
-        devices = {"Wifi": wifi, "Bluetooth": bluetooth, "Audio": audio}
+        # Device Icons
         for name, device in devices.items():
             if config.getboolean('Detection', name):
                 count += 1
@@ -219,6 +197,14 @@ def main():
                     pngview(name, get_x_pos(count), Y_POS, icons[new_state], alpha)
                     states[name] = new_state
                 log = log + f', {name}: {states[name]} {info}'
+
+                if name == "BatteryADC" and config.getboolean('Detection', 'ADCShutdown'):
+                    if shutdown_pending and info > config.getfloat("Detection", "VMinCharging"):
+                        abort_shutdown()
+                        shutdown_pending = False
+                    elif info < config.getfloat("Detection", "VMinDischarging"):
+                        shutdown()
+                        shutdown_pending = True
 
         # Enviroment Icons
         if not config.getboolean('Detection', 'HideEnvWarnings'):
@@ -230,7 +216,7 @@ def main():
                     if not key in overlay_processes:
                         count += 1
                         pngview(key, get_x_pos(count), Y_POS, icons[key], alpha)
-                elif not value:
+                else:
                     kill_overlay_process(key)
             log = log + f', environment: {env_text}'
 

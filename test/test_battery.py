@@ -21,10 +21,14 @@ class TestBattery(unittest.TestCase):
         """Setup empty dictionary and dummy icon_path, call function,
         then check dictionary length and content are correct"""
         icons = {}
+        icon_size = "48"
         icon_path = "random_dir/"
-        battery.add_icons(icons, icon_path)
-        self.assertTrue(len(icons.keys()) == 1)
+        battery.add_icons(icons, icon_path, icon_size)
+        self.assertTrue(len(icons.keys()) == 17)
         self.assertTrue(icons['battery_critical_shutdown'] == "random_dir/battery-alert_120.png")
+        self.assertTrue(icons['30'] == "random_dir/ic_battery_30_black_48dp.png")
+        self.assertTrue(icons['charging_60'] == "random_dir/ic_battery_charging_60_black_48dp.png")
+        self.assertTrue(icons['alert_red'] == "random_dir/battery-alert_48.png")
 
     def test_battery(self):
         """Create Battery object."""
