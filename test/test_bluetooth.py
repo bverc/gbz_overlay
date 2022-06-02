@@ -28,8 +28,9 @@ class TestBluetooth(unittest.TestCase):
         """Test bluetooth.get_state() with a directory with at least one file"""
         cwd = os.getcwd()
         bluetooth.BT_DEVICES_DIR = cwd + "/test/dir2"
-        bt_state = bluetooth.get_state()
+        (bt_state, info) = bluetooth.get_state()
         self.assertTrue(bt_state == "bt_connected")
+        self.assertTrue(info == "")
 
     def test_get_state_disconnected(self):
         """Test bluetooth.get_state() with an empty directory"""
@@ -37,12 +38,14 @@ class TestBluetooth(unittest.TestCase):
         bluetooth.BT_DEVICES_DIR = cwd + "/test/dir0"
 
         bluetooth.BT_CMD = ["echo", "-e", "\n\nUP"]
-        bt_state = bluetooth.get_state()
+        (bt_state, info) = bluetooth.get_state()
         self.assertTrue(bt_state == "bt_enabled")
+        self.assertTrue(info == "")
 
         bluetooth.BT_CMD = ["echo", "-e", "\n\nDOWN"]
-        bt_state = bluetooth.get_state()
+        (bt_state, info) = bluetooth.get_state()
         self.assertTrue(bt_state == "bt_disabled")
+        self.assertTrue(info == "")
 
 if __name__ == '__main__':
     unittest.main()
