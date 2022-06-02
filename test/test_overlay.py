@@ -141,5 +141,15 @@ class TestOverlay(unittest.TestCase):
         # Must be True if system has not shutdown
         self.assertTrue(True) # pylint: disable=redundant-unittest-assert
 
+    def test_get_alpha(self):
+        """Test get_alpha() with different game states."""
+        overlay.config['Detection']['InGameAlpha'] = "255"
+        self.assertTrue(overlay.get_alpha(False) == "255")
+        self.assertTrue(overlay.get_alpha(True) == "255")
+
+        overlay.config['Detection']['InGameAlpha'] = "100"
+        self.assertTrue(overlay.get_alpha(False) == "255")
+        self.assertTrue(overlay.get_alpha(True) == "100")
+
 if __name__ == '__main__':
     unittest.main()
