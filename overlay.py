@@ -145,6 +145,12 @@ def abort_shutdown():
     os.system("sudo shutdown -c")
     kill_overlay_process("caution")
     my_logger.info("Power Restored, shutdown aborted.")
+    
+def get_alpha(ingame):
+    """Get alpha value if in game, otherwise max."""
+    if ingame:
+        return config['Detection']['InGameAlpha']
+    return "255"
 
 overlay_processes = {}
 
@@ -175,10 +181,7 @@ def main(): # pylint: disable=too-many-locals, too-many-branches, too-many-state
 
         # Check if retroarch is running then set alpha
         new_ingame = check_process('retroarch')
-        if new_ingame:
-            alpha = config['Detection']['InGameAlpha']
-        else:
-            alpha = "255"
+        alpha = get_alpha(new_ingame)
 
         log = str(datetime.now())
 
