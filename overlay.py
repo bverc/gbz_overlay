@@ -163,17 +163,13 @@ def get_alpha(ingame):
 def setup_interrupts():
     """setup interrupts for shutdown."""
     GPIO.setmode(GPIO.BCM)
-    if config.getboolean('Detection', 'BatteryLDO'):
-        ldo_gpio = config['BatteryLDO']['GPIO']
-        my_logger.info("LDO Active on GPIO %s", ldo_gpio)
-        GPIO.setup(int(ldo_gpio), GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(int(ldo_gpio), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=500)
-
-    if config.getboolean('Detection', 'ShutdownGPIO'):
-        sd_gpio = config['ShutdownGPIO']['GPIO']
-        my_logger.info("Shutdown button on GPIO %s", sd_gpio)
-        GPIO.setup(int(sd_gpio), GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(int(sd_gpio), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=200)
+    for interrupt in ['BatteryLDO', 'ShutdownGPIO']:
+        if config.getboolean('Detection', interrupt):
+            channel = config[interrupt]['GPIO']
+            my_logger.info("%s active on GPIO %s", interrupt, channel)
+            GPIO.setup(int(channel), GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.add_event_detect(int(channel), GPIO.BOTH, callback=interrupt_shutdown,
+                                  bouncetime=500)
 
 def update_device_icon(count, device, states, new_ingame, alpha):
     """Check if device states hav changed; if so, update icons."""

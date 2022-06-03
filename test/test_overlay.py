@@ -6,10 +6,18 @@ Author: bverc
 
 import unittest
 import subprocess
-import time
 import os
+from unittest.mock import Mock
 
 import overlay
+
+overlay.GPIO.input = Mock()
+
+def mock_input(channel):
+    """A function to mock GPIO.input()"""
+    if channel < 10:
+        return True
+    return False
 
 class TestOverlay(unittest.TestCase):
     """A Class used to test overlay module."""
@@ -132,14 +140,13 @@ class TestOverlay(unittest.TestCase):
         # process systemd should be running
         self.assertTrue(overlay.check_process("systemd"))
 
-    def test_abort_shutdown(self):
-        """Abort a pending shutdown, then check system still responds 60 seconds later."""
-        os.system("sudo shutdown -P +1")
-        time.sleep(30)
+    def test_shutdown_abort_shutdown(self):
+        """Start a shutdown then abort, check icon has been added then removed."""
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.shutdown()
+        self.assertTrue("caution" in overlay.overlay_processes)
         overlay.abort_shutdown()
-        time.sleep(31)
-        # Must be True if system has not shutdown
-        self.assertTrue(True) # pylint: disable=redundant-unittest-assert
+        self.assertFalse("caution" in overlay.overlay_processes)
 
     def test_get_alpha(self):
         """Test get_alpha() with different game states."""
@@ -152,7 +159,7 @@ class TestOverlay(unittest.TestCase):
         self.assertTrue(overlay.get_alpha(True) == "100")
 
     def test_adc_shutdown(self):
-        """ Test adc_shutdown() with various voltages and pending shutdown states."""
+        """Test adc_shutdown() with various voltages and pending shutdown states."""
         overlay.PNGVIEW_PATH = "echo"
         overlay.config['Detection']['VMinCharging'] = "4"
         overlay.config['Detection']['VMinDischarging'] = "3.2"
@@ -168,6 +175,70 @@ class TestOverlay(unittest.TestCase):
         # Voltage above minimum charging voltage, expect always False
         self.assertFalse(overlay.adc_shutdown(True, 4.1))
         self.assertFalse(overlay.adc_shutdown(False, 4.1))
+
+        # Abort any pending shutdown
+        os.system("sudo shutdown -c")
+
+    def test_interrupt_shutdown_rising(self):
+        """Test interrupt_shutdown() with rising edge GPIO."""
+        overlay.GPIO.input.side_effect = mock_input
+
+        # GPIO Rising Edge Interrupt
+        overlay.config['BatteryLDO']['GPIO'] = "1"
+        overlay.config['ShutdownGPIO']['GPIO'] = "2"
+
+        # BatteryLDO, ActiveLow, GPIO High, no shutdown
+        overlay.config['BatteryLDO']['ActiveLow'] = "True"
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.interrupt_shutdown(1)
+        self.assertFalse("caution" in overlay.overlay_processes)
+
+        # BatteryLDO, ActiveHigh, GPIO High, Shutdown
+        overlay.config['BatteryLDO']['ActiveLow'] = "False"
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.interrupt_shutdown(1)
+        self.assertTrue("caution" in overlay.overlay_processes)
+        overlay.abort_shutdown()
+
+        # ShutdownGPIO, ActiveLow, GPIO High, no shutdown
+        overlay.config['ShutdownGPIO']['ActiveLow'] = "True"
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.interrupt_shutdown(2)
+        self.assertFalse("caution" in overlay.overlay_processes)
+
+        # Cannot test ShutdownGPIO, ActiveHigh, GPIO High, as will cause immediate shutdown
+
+        # Abort any pending shutdown
+        os.system("sudo shutdown -c")
+
+    def test_interrupt_shutdown_falling(self):
+        """Test interrupt_shutdown() with falling edge GPIO."""
+        overlay.GPIO.input.side_effect = mock_input
+
+        # GPIO Falling Edge Interrupt
+        overlay.config['BatteryLDO']['GPIO'] = "11"
+        overlay.config['ShutdownGPIO']['GPIO'] = "12"
+
+        # BatteryLDO, ActiveLow, GPIO Low, Shutdown
+        overlay.config['BatteryLDO']['ActiveLow'] = "True"
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.interrupt_shutdown(11)
+        self.assertTrue("caution" in overlay.overlay_processes)
+        overlay.abort_shutdown()
+
+        # BatteryLDO, ActiveHigh, GPIO Low, no shutdown
+        overlay.config['BatteryLDO']['ActiveLow'] = "False"
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.interrupt_shutdown(11)
+        self.assertFalse("caution" in overlay.overlay_processes)
+
+        # ShutdownGPIO, ActiveHigh, GPIO Low, no shutdown
+        overlay.config['ShutdownGPIO']['ActiveLow'] = "False"
+        self.assertFalse("caution" in overlay.overlay_processes)
+        overlay.interrupt_shutdown(12)
+        self.assertFalse("caution" in overlay.overlay_processes)
+
+        # Cannot test ShutdownGPIO, ActiveLow, GPIO Low, as will cause immediate shutdown
 
         # Abort any pending shutdown
         os.system("sudo shutdown -c")
