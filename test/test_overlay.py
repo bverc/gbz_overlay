@@ -153,6 +153,7 @@ class TestOverlay(unittest.TestCase):
 
     def test_adc_shutdown(self):
         """ Test adc_shutdown() with various voltages and pending shutdown states."""
+        overlay.PNGVIEW_PATH = "echo"
         overlay.config['Detection']['VMinCharging'] = "4"
         overlay.config['Detection']['VMinDischarging'] = "3.2"
 
