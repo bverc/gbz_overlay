@@ -11,13 +11,8 @@ from unittest.mock import Mock
 
 import overlay
 
+overlay.GPIO = Mock()
 overlay.GPIO.input = Mock()
-
-def mock_input(channel):
-    """A function to mock GPIO.input()"""
-    if channel < 10:
-        return True
-    return False
 
 class TestOverlay(unittest.TestCase):
     """A Class used to test overlay module."""
@@ -181,7 +176,7 @@ class TestOverlay(unittest.TestCase):
 
     def test_interrupt_shutdown_rising(self):
         """Test interrupt_shutdown() with rising edge GPIO."""
-        overlay.GPIO.input.side_effect = mock_input
+        overlay.GPIO.input.return_value = True
 
         # GPIO Rising Edge Interrupt
         overlay.config['BatteryLDO']['GPIO'] = "1"
@@ -213,7 +208,7 @@ class TestOverlay(unittest.TestCase):
 
     def test_interrupt_shutdown_falling(self):
         """Test interrupt_shutdown() with falling edge GPIO."""
-        overlay.GPIO.input.side_effect = mock_input
+        overlay.GPIO.input.return_value = False
 
         # GPIO Falling Edge Interrupt
         overlay.config['BatteryLDO']['GPIO'] = "11"
