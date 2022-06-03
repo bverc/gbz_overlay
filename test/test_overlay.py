@@ -238,5 +238,39 @@ class TestOverlay(unittest.TestCase):
         # Abort any pending shutdown
         os.system("sudo shutdown -c")
 
+    def test_update_device_icon(self):
+        """Test update_device_icon() with mock data."""
+        overlay.PNGVIEW_PATH = "echo"
+        overlay.icons = {
+            "state1": "state1.png",
+            "state2": "state2.png",
+        }
+
+        # Create mock device
+        device = Mock()
+        device.NAME = "DeviceName"
+        device.get_state.return_value = "state1", "info"
+
+        states = {"DeviceName": "state1", "ingame": False}
+
+        # State unchanged, ingame unchanged
+        info = overlay.update_device_icon(1, device, states, False, 255)
+        self.assertTrue(info == "info")
+        self.assertFalse("DeviceName" in overlay.overlay_processes)
+
+        # State unchanged, ingame changed
+        info = overlay.update_device_icon(1, device, states, True, 255)
+        self.assertTrue(info == "info")
+        self.assertTrue("state1.png" in overlay.overlay_processes["DeviceName"].args)
+
+        # State changed, ingame unchanged
+        device.get_state.return_value = "state2", "new_info"
+        info = overlay.update_device_icon(1, device, states, True, 255)
+        self.assertTrue(info == "new_info")
+        self.assertTrue("state2.png" in overlay.overlay_processes["DeviceName"].args)
+
+        # Kill process
+        overlay.kill_overlay_process("DeviceName")
+
 if __name__ == '__main__':
     unittest.main()
