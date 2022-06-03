@@ -152,6 +152,7 @@ def adc_shutdown(shutdown_pending, voltage):
     elif voltage < config.getfloat("Detection", "VMinDischarging"):
         shutdown()
         shutdown_pending = True
+    return shutdown_pending
 
 def get_alpha(ingame):
     """Get alpha value if in game, otherwise max."""
@@ -224,7 +225,7 @@ def main():
                 info = update_device_icon(count, device, states, new_ingame, alpha)
                 log = log + f', {device.NAME}: {states[device.NAME]} {info}'
                 if device.NAME == "BatteryADC" and config.getboolean('Detection', 'ADCShutdown'):
-                    adc_shutdown(shutdown_pending, info)
+                    shutdown_pending = adc_shutdown(shutdown_pending, info)
 
         # Enviroment Icons
         if not config.getboolean('Detection', 'HideEnvWarnings'):

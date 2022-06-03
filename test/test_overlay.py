@@ -151,5 +151,25 @@ class TestOverlay(unittest.TestCase):
         self.assertTrue(overlay.get_alpha(False) == "255")
         self.assertTrue(overlay.get_alpha(True) == "100")
 
+    def test_adc_shutdown(self):
+        """ Test adc_shutdown() with various voltages and pending shutdown states."""
+        overlay.config['Detection']['VMinCharging'] = "4"
+        overlay.config['Detection']['VMinDischarging'] = "3.2"
+
+        # Voltage below minimum discharging voltage, expect always True
+        self.assertTrue(overlay.adc_shutdown(True, 3.0))
+        self.assertTrue(overlay.adc_shutdown(False, 3.0))
+
+        # Voltage above minimum discharging voltage, expect match input
+        self.assertTrue(overlay.adc_shutdown(True, 3.5))
+        self.assertFalse(overlay.adc_shutdown(False, 3.5))
+
+        # Voltage above minimum charging voltage, expect always False
+        self.assertFalse(overlay.adc_shutdown(True, 4.1))
+        self.assertFalse(overlay.adc_shutdown(False, 4.1))
+
+        # Abort any pending shutdown
+        os.system("sudo shutdown -c")
+
 if __name__ == '__main__':
     unittest.main()
