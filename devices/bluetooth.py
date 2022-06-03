@@ -7,6 +7,7 @@ Authors: bverc, d-rez
 import subprocess
 import os
 
+NAME = "Bluetooth"
 BT_DEVICES_DIR = "/sys/class/bluetooth"
 BT_CMD = "hciconfig"
 

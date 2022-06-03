@@ -6,13 +6,14 @@ Authors: bverc, d-rez
 
 import subprocess
 
+NAME = "Wifi"
+WIFI_CMD = ["iwconfig", "wlan0"]
+
 # 1 when wifi connected, 0 when disconnected or ifdown
 WIFI_CARRIER = "/sys/class/net/wlan0/carrier"
 
 # 1 when ifup, 0 when ifdown
 WIFI_LINKMODE = "/sys/class/net/wlan0/link_mode"
-
-WIFI_CMD = ["iwconfig", "wlan0"]
 
 def add_icons(icons, iconpath, size):
     """Add WIFI specific icons."""

@@ -74,10 +74,8 @@ icons = {
     "freq-capped": ICON_PATH + "thermometer_" + ICON_SIZE + ".png",
     "throttled": ICON_PATH + "thermometer-lines_" + ICON_SIZE + ".png",
 }
-wifi.add_icons(icons, ICON_PATH, ICON_SIZE)
-bluetooth.add_icons(icons, ICON_PATH, ICON_SIZE)
-audio.add_icons(icons, ICON_PATH, ICON_SIZE)
-battery.add_icons(icons, ICON_PATH, ICON_SIZE)
+for module in [wifi, bluetooth, audio, battery]:
+    module.add_icons(icons, ICON_PATH, ICON_SIZE)
 
 ENV_CMD = "vcgencmd get_throttled"
 
@@ -146,6 +144,15 @@ def abort_shutdown():
     kill_overlay_process("caution")
     my_logger.info("Power Restored, shutdown aborted.")
 
+def adc_shutdown(shutdown_pending, voltage):
+    """Check if battery voltage should trigger a shutdown or recover a pending shutdown."""
+    if shutdown_pending and voltage > config.getfloat("Detection", "VMinCharging"):
+        abort_shutdown()
+        shutdown_pending = False
+    elif voltage < config.getfloat("Detection", "VMinDischarging"):
+        shutdown()
+        shutdown_pending = True
+
 def get_alpha(ingame):
     """Get alpha value if in game, otherwise max."""
     if ingame:
@@ -167,15 +174,37 @@ def setup_interrupts():
         GPIO.setup(int(sd_gpio), GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(int(sd_gpio), GPIO.BOTH, callback=interrupt_shutdown, bouncetime=200)
 
+def update_device_icon(count, device, states, new_ingame, alpha):
+    """Check if device states hav changed; if so, update icons."""
+    (new_state, info) = device.get_state()
+    if new_state != states[device.NAME] or new_ingame != states["ingame"]:
+        pngview(device.NAME, get_x_pos(count), Y_POS, icons[new_state], alpha)
+        states[device.NAME] = new_state
+    return info
+
+def update_env_icons(count, alpha):
+    """Check environment status, and display any relevant icons."""
+    env = environment()
+    env_text = 'normal'
+    for key, value in env.items():
+        if value:
+            env_text = key
+            if not key in overlay_processes:
+                count += 1
+                pngview(key, get_x_pos(count), Y_POS, icons[key], alpha)
+        else:
+            kill_overlay_process(key)
+    return env_text
+
 overlay_processes = {}
 
 def main():
     """ Main Function."""
     states = {"Wifi": None, "Bluetooth": None, "Audio": None, "BatteryADC": None, "ingame": None}
-    devices = {"Wifi": wifi, "Bluetooth": bluetooth, "Audio": audio}
+    devices = [wifi, bluetooth, audio]
     if config.getboolean('Detection', 'BatteryADC'):
         bat = battery.Battery(config)
-        devices['BatteryADC'] = bat
+        devices.append(bat)
     shutdown_pending = False
     setup_interrupts()
 
@@ -189,35 +218,17 @@ def main():
         alpha = get_alpha(new_ingame)
 
         # Device Icons
-        for name, device in devices.items():
-            if config.getboolean('Detection', name):
+        for device in devices:
+            if config.getboolean('Detection', device.NAME):
                 count += 1
-                (new_state, info) = device.get_state()
-                if new_state != states[name] or new_ingame != states["ingame"]:
-                    pngview(name, get_x_pos(count), Y_POS, icons[new_state], alpha)
-                    states[name] = new_state
-                log = log + f', {name}: {states[name]} {info}'
-
-                if name == "BatteryADC" and config.getboolean('Detection', 'ADCShutdown'):
-                    if shutdown_pending and info > config.getfloat("Detection", "VMinCharging"):
-                        abort_shutdown()
-                        shutdown_pending = False
-                    elif info < config.getfloat("Detection", "VMinDischarging"):
-                        shutdown()
-                        shutdown_pending = True
+                info = update_device_icon(count, device, states, new_ingame, alpha)
+                log = log + f', {device.NAME}: {states[device.NAME]} {info}'
+                if device.NAME == "BatteryADC" and config.getboolean('Detection', 'ADCShutdown'):
+                    adc_shutdown(shutdown_pending, info)
 
         # Enviroment Icons
         if not config.getboolean('Detection', 'HideEnvWarnings'):
-            env = environment()
-            env_text = 'normal'
-            for key, value in env.items():
-                if value:
-                    env_text = key
-                    if not key in overlay_processes:
-                        count += 1
-                        pngview(key, get_x_pos(count), Y_POS, icons[key], alpha)
-                else:
-                    kill_overlay_process(key)
+            env_text = update_env_icons(count, alpha)
             log = log + f', environment: {env_text}'
 
         my_logger.info(log)

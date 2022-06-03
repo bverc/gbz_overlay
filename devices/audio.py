@@ -6,6 +6,7 @@ Author: bverc
 
 import subprocess
 
+NAME = "Audio"
 AUDIO_CMD = "amixer"
 
 def add_icons(icons, iconpath, size):

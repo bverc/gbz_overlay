@@ -8,6 +8,7 @@ import importlib
 from statistics import median
 from collections import deque
 
+NAME = "BatteryADC"
 BAT_STATES = {"discharging": ["alert_red", "alert", "20", "30", "30", "50", "60",
                              "60", "80", "90", "full", "full"],
              "charging"   : ["charging_20", "charging_20", "charging_20",
@@ -24,6 +25,7 @@ def add_icons(icons, iconpath, size):
 
 class Battery:
     """A Class to represent a battery and ADC device."""
+
     def __init__(self, config):
         """Initialise battery object using config file for battery and ADC specifications."""
         self.adc = importlib.import_module('adc.' + config.get("Detection", "ADCType").lower())
