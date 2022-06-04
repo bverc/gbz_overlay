@@ -272,5 +272,47 @@ class TestOverlay(unittest.TestCase):
         # Kill process
         overlay.kill_overlay_process("DeviceName")
 
+    def test_update_env_icons(self):
+        """Test update_env_icons() with mock data."""
+        overlay.PNGVIEW_PATH = "echo"
+        overlay.environment = Mock()
+        overlay.icons = {
+            "under-voltage": "flash.png",
+            "freq-capped": "thermometer.png",
+            "throttled": "thermometer-lines.png"
+        }
+
+        # Normal Environment
+        overlay.environment.return_value = {
+            "under-voltage": False,
+            "freq-capped": False,
+            "throttled": False
+        }
+        self.assertEqual(overlay.update_env_icons(1, 255), "normal")
+
+        # Under voltage
+        overlay.environment.return_value = {
+            "under-voltage": True,
+            "freq-capped": False,
+            "throttled": False
+        }
+        self.assertEqual(overlay.update_env_icons(1, 255), "under-voltage")
+
+        # Frequency capped
+        overlay.environment.return_value = {
+            "under-voltage": False,
+            "freq-capped": True,
+            "throttled": False
+        }
+        self.assertEqual(overlay.update_env_icons(1, 255), "freq-capped")
+
+        # Throttled
+        overlay.environment.return_value = {
+            "under-voltage": False,
+            "freq-capped": False,
+            "throttled": True
+        }
+        self.assertEqual(overlay.update_env_icons(1, 255), "throttled")
+
 if __name__ == '__main__':
     unittest.main()
