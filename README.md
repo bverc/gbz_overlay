@@ -73,14 +73,13 @@ SSH into your device, or access the terminal using F4.
 ```bash
 mkdir ~/src
 cd ~/src
-git clone https://github.com/bverc/raspidmx
+git clone https://github.com/AndrewFromMelbourne/raspidmx
 cd raspidmx/lib
 make
 cd ../pngview
 make
 sudo cp pngview /usr/local/bin/
  ```
-  Note: AndrewFromMelbourne/raspidmx has been replaced with bverc/raspidmx due to added features required by retropie-status-overlay. Will be changed back pending [pull request](https://github.com/AndrewFromMelbourne/raspidmx/pull/31).
   
 ## Run RetroPie Status Overlay
 Install psutil module:

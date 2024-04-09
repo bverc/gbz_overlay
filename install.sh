@@ -250,7 +250,7 @@ echo "Installing pngview by AndrewFromMelbourne"
 echo -e "${NONE}"
 echo "--------------------------------------------------"
 cd $SCRIPTPATH
-git clone https://github.com/bverc/raspidmx
+git clone https://github.com/AndrewFromMelbourne/raspidmx
 cd $SCRIPTPATH/raspidmx/lib
 make
 cd $SCRIPTPATH/raspidmx/pngview
