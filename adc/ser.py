@@ -3,7 +3,7 @@ github.com/bverc/retropie-status-overlay
 
 ADC module for Serial based devices, such as an Arduino
 
-Authors: R41zan, bverc
+Authors: R41zan, scavenrage, bverc
 
 Requires python module pySerial
 install: python3 -m pip install pyserial
@@ -28,4 +28,4 @@ def read(channel): # pylint: disable=unused-argument
     """Read from ADC and return voltage."""
     ser.reset_input_buffer() # Clear input buffer
     value_v = ser.readline().decode('utf-8').rstrip()
-    return value_v
+    return float(value_v)
