@@ -6,4 +6,5 @@ RPi.GPIO
 Adafruit-ADS1x15
 Adafruit-MCP3008
 smbus
+pyserial
 #pijuice-base # not available via pip
