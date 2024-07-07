@@ -30,6 +30,7 @@ BatteryADC = False
 # Which chip are you using for ADC (Only applies if BatteryADC=True)
 # MCP3008
 # ADS1015
+# ADS1115
 # PJ (PiJuice or PiJuice Zero)
 ADCType = PJ
 

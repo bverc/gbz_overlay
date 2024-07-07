@@ -23,7 +23,7 @@ This repository contains a script to display status icons on top of your RetroPi
 
 ## Battery Level Detection Support
 - Low Voltage GPIO
-- Texas Instruments ADS1015 (Also available as Adafruit breakout board)
+- Texas Instruments ADS1015/ADS1115 (Also available as Adafruit breakout board)
 - Microchip MCP3008
 - PiJuice HAT / PiJuice Zero
 - PiSugar ([requires testing](https://github.com/bverc/retropie-status-overlay/issues/22))

@@ -128,11 +128,13 @@ if [[ $CONFIG = [bB] ]] ; then
 
   CHIPTYPE="None"
   if [[ $BATADC = "True" ]] ; then
-    read -p "[MCP]3008, [ADS]1015, [PJ] PiJuice (Zero): " CHIPTYPE
+    read -p "[MCP]3008, [ADS10]15, [ADS11]15 [PJ] PiJuice (Zero): " CHIPTYPE
     if [[ $CHIPTYPE = "MCP" ]] ; then
       CHIPTYPE="MCP3008"
-    elif [[ $CHIPTYPE = "ADS" ]] ; then
+    elif [[ $CHIPTYPE = "ADS10" ]] ; then
       CHIPTYPE="ADS1015"
+    elif [[ $CHIPTYPE = "ADS11" ]] ; then
+      CHIPTYPE="ADS1115"
     elif [[ $CHIPTYPE = "PJ" ]] ; then
       CHIPTYPE="PJ"
     fi
@@ -141,6 +143,7 @@ if [[ $CONFIG = [bB] ]] ; then
   echo "# Which chip are you using for ADC (Only applies if BatteryADC=True)" >> config.ini 
   echo "# MCP3008" >> config.ini
   echo "# ADS1015" >> config.ini
+  echo "# ADS1115" >> config.ini
   echo "# PJ (PiJuice or PiJuice Zero)" >> config.ini
   echo "ADCType = $CHIPTYPE" >> config.ini
   echo "" >> config.ini
